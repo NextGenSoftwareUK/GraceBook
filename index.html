@@ -1,0 +1,881 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GraceBook — The Conscious Social Network</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90' fill='%23f5c518'>✦</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root{
+  --gold:#f5c518;
+  --teal:#00d4aa;
+  --rose:#ff5fa0;
+  --bg:#030714;
+  --bg-card:#0a1535;
+  --heading:#ffffff;
+  --text:#a8bfd8;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;font-size:16px;line-height:1.6;overflow-x:hidden}
+
+/* ── STARS ── */
+#stars{position:fixed;inset:0;z-index:0;pointer-events:none}
+
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:18px 40px;display:flex;align-items:center;justify-content:space-between;background:rgba(3,7,20,.88);backdrop-filter:blur(12px);border-bottom:1px solid rgba(245,197,24,.1)}
+.nav-brand{font-family:'Orbitron',sans-serif;font-size:15px;font-weight:700;letter-spacing:.18em;color:#fff;text-decoration:none;display:flex;align-items:center;gap:10px}
+.nav-brand span{color:var(--gold)}
+.nav-links{display:flex;gap:24px;list-style:none}
+.nav-links a{font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:.14em;color:#a8bfd8;text-decoration:none;transition:color .2s;text-transform:uppercase}
+.nav-links-mobile-only{display:none}
+.nav-links a:hover{color:var(--gold)}
+.nav-cta{font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:.1em;color:var(--gold);border:1px solid rgba(245,197,24,.35);border-radius:999px;padding:8px 18px;text-decoration:none;transition:background .2s,border-color .2s;white-space:nowrap}
+.nav-cta:hover{background:rgba(245,197,24,.08);border-color:rgba(245,197,24,.6)}
+.nav-right{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.nav-toggle{display:none;flex-direction:column;justify-content:center;gap:5px;width:32px;height:32px;background:none;border:none;cursor:pointer;z-index:101}
+.nav-toggle span{display:block;width:100%;height:2px;background:#a8bfd8;transition:transform .25s,opacity .25s}
+.nav-toggle.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.nav-toggle.open span:nth-child(2){opacity:0}
+.nav-toggle.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+@media(max-width:860px){
+  .nav-toggle{display:flex}
+  .nav-links{position:fixed;top:0;right:0;height:100vh;width:min(78vw,320px);flex-direction:column;justify-content:flex-start;align-items:flex-start;gap:14px;padding:76px 32px 24px;overflow-y:auto;background:rgba(3,7,20,.97);backdrop-filter:blur(12px);border-left:1px solid rgba(245,197,24,.12);transform:translateX(100%);transition:transform .3s ease}
+  .nav-links.open{transform:translateX(0)}
+  .nav-links-mobile-only{display:list-item}
+}
+
+/* ── CONNECT AVATAR button ── */
+.av-connect-btn{font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:.1em;color:#a8bfd8;border:1px solid rgba(255,255,255,.15);border-radius:999px;padding:8px 16px;background:none;cursor:pointer;transition:all .2s;margin-left:10px;white-space:nowrap}
+.av-connect-btn:hover{border-color:rgba(245,197,24,.5);color:var(--gold)}
+.av-connected-badge{display:none;align-items:center;gap:10px;margin-left:10px}
+.av-connected-badge.show{display:flex}
+.av-avatar-name{font-family:'Share Tech Mono',monospace;font-size:11px;color:#a8bfd8}
+.av-karma-pill{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--gold);background:rgba(245,197,24,.1);border:1px solid rgba(245,197,24,.25);border-radius:999px;padding:4px 12px;cursor:pointer;transition:background .2s}
+.av-karma-pill:hover{background:rgba(245,197,24,.18)}
+.av-logout-btn{background:none;border:none;color:#a8bfd8;font-size:14px;cursor:pointer;opacity:.5;transition:opacity .2s;padding:2px 6px}
+.av-logout-btn:hover{opacity:1}
+
+/* ── HERO ── */
+.hero{position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:120px 24px 80px;z-index:1}
+#hero-canvas{position:absolute;inset:0;z-index:0;width:100%;height:100%}
+.hero-inner{position:relative;z-index:1;max-width:820px}
+.hero-kicker{font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:.28em;color:var(--gold);margin-bottom:22px;opacity:.85}
+.hero-title{font-family:'Orbitron',sans-serif;font-size:clamp(36px,6vw,72px);font-weight:900;letter-spacing:.04em;color:#fff;line-height:1.08;margin-bottom:28px}
+.hero-title span{color:var(--gold);text-shadow:0 0 40px rgba(245,197,24,.4)}
+.hero-sub{font-size:18px;color:#a8bfd8;max-width:580px;margin:0 auto 44px;line-height:1.75}
+.hero-btns{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+.btn-primary{font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:.14em;color:#000;background:var(--gold);border:none;border-radius:999px;padding:14px 32px;cursor:pointer;transition:all .25s;text-decoration:none;display:inline-block}
+.btn-primary:hover{background:#ffd740;box-shadow:0 0 32px rgba(245,197,24,.45)}
+.btn-outline{font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:.14em;color:var(--gold);border:1px solid rgba(245,197,24,.4);border-radius:999px;padding:14px 32px;background:none;cursor:pointer;transition:all .25s;text-decoration:none;display:inline-block}
+.btn-outline:hover{background:rgba(245,197,24,.08);border-color:var(--gold)}
+.hero-stats{display:flex;gap:48px;justify-content:center;margin-top:64px;flex-wrap:wrap}
+.hero-stat .num{font-family:'Orbitron',sans-serif;font-size:28px;font-weight:900;color:var(--gold)}
+.hero-stat .lbl{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:.2em;color:#a8bfd8;margin-top:4px}
+
+/* ── SECTIONS ── */
+.section{position:relative;z-index:1;padding:90px 24px}
+.section-inner{max-width:1100px;margin:0 auto}
+.section-kicker{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:.28em;color:var(--gold);margin-bottom:14px;text-align:center}
+.section-title{font-family:'Orbitron',sans-serif;font-size:clamp(24px,4vw,40px);font-weight:900;letter-spacing:.05em;color:#fff;text-align:center;margin-bottom:16px}
+.section-line{display:block;width:60px;height:2px;background:linear-gradient(90deg,var(--gold),transparent);margin:0 auto 24px}
+.section-sub{font-size:16px;color:#a8bfd8;text-align:center;max-width:640px;margin:0 auto 56px;line-height:1.75}
+
+/* ── HOW IT WORKS ── */
+.how-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:24px;max-width:1100px;margin:0 auto}
+.how-card{background:var(--bg-card);border-radius:18px;padding:32px 26px;border:1px solid rgba(245,197,24,.12);transition:border-color .3s,transform .3s}
+.how-card:hover{border-color:rgba(245,197,24,.3);transform:translateY(-4px)}
+.how-card.earn{border-color:rgba(0,212,170,.15)}
+.how-card.earn:hover{border-color:rgba(0,212,170,.35)}
+.how-card.lose{border-color:rgba(255,95,160,.12)}
+.how-card.lose:hover{border-color:rgba(255,95,160,.3)}
+.how-icon{font-size:36px;margin-bottom:16px;display:block}
+.how-title{font-family:'Orbitron',sans-serif;font-size:14px;font-weight:700;letter-spacing:.06em;margin-bottom:12px;color:#fff}
+.how-card.earn .how-title{color:var(--teal)}
+.how-card.lose .how-title{color:var(--rose)}
+.how-desc{font-size:15px;color:#a8bfd8;line-height:1.65;margin-bottom:18px}
+.how-items{list-style:none;display:flex;flex-direction:column;gap:8px}
+.how-items li{font-family:'Share Tech Mono',monospace;font-size:11px;color:#a8bfd8;display:flex;align-items:center;gap:8px}
+.how-items li::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.how-card.earn .how-items li::before{background:var(--teal)}
+.how-card.lose .how-items li::before{background:var(--rose)}
+.karma-tag{display:inline-block;font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:.12em;border-radius:999px;padding:4px 12px;border:1px solid;margin-top:16px}
+.karma-tag.earn{color:var(--teal);border-color:rgba(0,212,170,.3);background:rgba(0,212,170,.07)}
+.karma-tag.lose{color:var(--rose);border-color:rgba(255,95,160,.3);background:rgba(255,95,160,.07)}
+
+/* ── LIVE FEED ── */
+.feed-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:960px;margin:0 auto}
+@media(max-width:680px){.feed-grid{grid-template-columns:1fr}}
+.feed-post{background:var(--bg-card);border:1px solid rgba(245,197,24,.1);border-radius:16px;padding:28px 24px;transition:border-color .3s}
+.feed-post:hover{border-color:rgba(245,197,24,.25)}
+.feed-post.featured{border-color:rgba(245,197,24,.25);background:linear-gradient(135deg,rgba(245,197,24,.05),rgba(10,21,53,.97))}
+.post-header{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.post-avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.post-avatar.gold{background:linear-gradient(135deg,rgba(245,197,24,.3),rgba(245,197,24,.1));border:2px solid rgba(245,197,24,.35)}
+.post-avatar.teal{background:linear-gradient(135deg,rgba(0,212,170,.3),rgba(0,212,170,.1));border:2px solid rgba(0,212,170,.25)}
+.post-avatar.violet{background:linear-gradient(135deg,rgba(167,139,250,.3),rgba(167,139,250,.1));border:2px solid rgba(167,139,250,.25)}
+.post-avatar.green{background:linear-gradient(135deg,rgba(0,232,124,.25),rgba(0,232,124,.08));border:2px solid rgba(0,232,124,.2)}
+.post-meta{display:flex;flex-direction:column;gap:2px}
+.post-name{font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;color:#fff;letter-spacing:.04em}
+.post-time{font-family:'Share Tech Mono',monospace;font-size:10px;color:#6a80a8}
+.post-karma-badge{margin-left:auto;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--teal);background:rgba(0,212,170,.1);border:1px solid rgba(0,212,170,.2);border-radius:999px;padding:4px 10px;white-space:nowrap}
+.post-body{font-size:15px;color:#a8bfd8;line-height:1.7;margin-bottom:16px}
+.post-tag{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:.12em;color:var(--gold);background:rgba(245,197,24,.07);border:1px solid rgba(245,197,24,.18);border-radius:999px;padding:4px 10px;display:inline-block}
+.post-reactions{display:flex;gap:12px;margin-top:14px}
+.reaction{font-family:'Share Tech Mono',monospace;font-size:11px;color:#6a80a8;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:999px;padding:5px 12px;cursor:pointer;transition:all .2s}
+.reaction:hover{border-color:rgba(245,197,24,.3);color:var(--gold)}
+
+/* ── FEATURES GRID ── */
+.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px;max-width:1100px;margin:0 auto}
+.feature-card{background:var(--bg-card);border-radius:18px;padding:36px 28px;border:1px solid rgba(245,197,24,.1);position:relative;overflow:hidden;transition:transform .3s,border-color .3s}
+.feature-card:hover{transform:translateY(-5px);border-color:rgba(245,197,24,.25)}
+.feature-card::before{content:'';position:absolute;inset:0;border-radius:18px;background:radial-gradient(ellipse at 50% 0%,rgba(245,197,24,.07),transparent 60%);opacity:0;transition:opacity .3s;pointer-events:none}
+.feature-card:hover::before{opacity:1}
+.feature-num{font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;letter-spacing:.2em;color:var(--gold);margin-bottom:10px}
+.feature-icon{font-size:38px;display:block;margin-bottom:16px}
+.feature-title{font-family:'Orbitron',sans-serif;font-size:15px;font-weight:900;letter-spacing:.06em;color:#fff;margin-bottom:12px}
+.feature-desc{font-size:15px;color:#a8bfd8;line-height:1.7}
+.feature-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+.ftag{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:.14em;padding:5px 10px;border-radius:999px;border:1px solid rgba(245,197,24,.25);color:var(--gold);background:rgba(245,197,24,.06)}
+
+/* ── KARMA BAND ── */
+.karma-band{background:linear-gradient(135deg,rgba(245,197,24,.06),rgba(10,21,53,.97));border:1px solid rgba(245,197,24,.15);border-radius:20px;padding:48px 40px;max-width:1100px;margin:0 auto;text-align:center}
+.karma-chips{display:flex;gap:20px;justify-content:center;flex-wrap:wrap;margin-top:36px}
+.karma-chip{background:var(--bg-card);border-radius:16px;padding:24px 20px;text-align:center;min-width:160px;flex:1;max-width:200px}
+.kc-num{font-family:'Orbitron',sans-serif;font-size:26px;font-weight:900;display:block;margin-bottom:6px}
+.kc-act{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:.16em;color:#a8bfd8;display:block}
+.kc-earn{border:1px solid rgba(0,212,170,.2);color:var(--teal)}
+.kc-lose{border:1px solid rgba(255,95,160,.2);color:var(--rose)}
+
+/* ── LEADERBOARD ── */
+.leaderboard{max-width:680px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+.lb-row{display:flex;align-items:center;gap:16px;background:var(--bg-card);border:1px solid rgba(245,197,24,.1);border-radius:14px;padding:18px 22px;transition:border-color .3s}
+.lb-row:hover{border-color:rgba(245,197,24,.25)}
+.lb-row.top{border-color:rgba(245,197,24,.3);background:linear-gradient(135deg,rgba(245,197,24,.06),rgba(10,21,53,.97))}
+.lb-rank{font-family:'Orbitron',sans-serif;font-size:15px;font-weight:900;color:var(--gold);width:28px;flex-shrink:0}
+.lb-avatar{font-size:24px;flex-shrink:0}
+.lb-info{flex:1}
+.lb-name{font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700;color:#fff;letter-spacing:.04em}
+.lb-title{font-family:'Share Tech Mono',monospace;font-size:10px;color:#6a80a8;margin-top:2px}
+.lb-karma{font-family:'Orbitron',sans-serif;font-size:14px;font-weight:900;color:var(--gold)}
+.lb-bar-wrap{width:120px;height:4px;background:rgba(255,255,255,.06);border-radius:2px;flex-shrink:0}
+.lb-bar{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--gold),rgba(245,197,24,.4))}
+
+/* ── ECOSYSTEM BAND ── */
+.eco-band{background:linear-gradient(135deg,rgba(245,197,24,.04),rgba(10,21,53,.98));border-top:1px solid rgba(245,197,24,.1);border-bottom:1px solid rgba(245,197,24,.1);padding:64px 24px}
+.eco-inner{max-width:1000px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center}
+@media(max-width:680px){.eco-inner{grid-template-columns:1fr}}
+.eco-text h2{font-family:'Orbitron',sans-serif;font-size:22px;font-weight:900;letter-spacing:.05em;color:#fff;margin-bottom:14px}
+.eco-text p{font-size:15px;color:#a8bfd8;line-height:1.7;margin-bottom:24px}
+.eco-links{display:flex;flex-direction:column;gap:10px}
+.eco-link{display:flex;align-items:center;gap:12px;background:var(--bg-card);border-radius:12px;padding:14px 18px;border:1px solid rgba(255,255,255,.06);transition:border-color .3s;text-decoration:none}
+.eco-link:hover{border-color:rgba(245,197,24,.25)}
+.eco-link-icon{font-size:20px;flex-shrink:0}
+.eco-link-info .name{font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;color:#fff;letter-spacing:.04em}
+.eco-link-info .desc{font-family:'Share Tech Mono',monospace;font-size:10px;color:#6a80a8;margin-top:2px}
+.eco-visual{display:flex;flex-direction:column;gap:12px}
+.eco-stat-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.eco-stat{background:var(--bg-card);border-radius:14px;padding:20px;border:1px solid rgba(245,197,24,.1);text-align:center}
+.eco-stat .n{font-family:'Orbitron',sans-serif;font-size:22px;font-weight:900;color:var(--gold);display:block}
+.eco-stat .l{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:.16em;color:#a8bfd8;margin-top:4px;display:block}
+
+/* ── MODAL ── */
+.av-modal-overlay{position:fixed;inset:0;z-index:999;background:rgba(3,7,20,.82);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s}
+.av-modal-overlay.open{opacity:1;pointer-events:all}
+.av-modal-box{background:#0a1535;border:1px solid rgba(245,197,24,.2);border-radius:20px;padding:40px 36px;width:min(420px,92vw);position:relative;transform:translateY(20px);transition:transform .3s}
+.av-modal-overlay.open .av-modal-box{transform:translateY(0)}
+.av-modal-close{position:absolute;top:16px;right:18px;background:none;border:none;color:#a8bfd8;font-size:20px;cursor:pointer;opacity:.6;transition:opacity .2s}
+.av-modal-close:hover{opacity:1}
+.av-modal-kicker{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:.28em;color:var(--gold);margin-bottom:12px}
+.av-modal-title{font-family:'Orbitron',sans-serif;font-size:20px;font-weight:900;letter-spacing:.06em;color:#fff;margin-bottom:6px}
+.av-modal-sub{font-size:14px;color:#a8bfd8;margin-bottom:28px;line-height:1.6}
+.av-field{display:block;width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:13px 16px;color:#fff;font-family:'Rajdhani',sans-serif;font-size:15px;margin-bottom:14px;outline:none;transition:border-color .2s}
+.av-field:focus{border-color:rgba(245,197,24,.5)}
+.av-field::placeholder{color:#4a5a78}
+.av-submit-btn{width:100%;background:var(--gold);border:none;border-radius:10px;padding:14px;font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:.14em;color:#000;cursor:pointer;transition:background .2s,box-shadow .2s;margin-top:4px}
+.av-submit-btn:hover{background:#ffd740;box-shadow:0 0 24px rgba(245,197,24,.3)}
+.av-submit-btn:disabled{opacity:.45;cursor:not-allowed}
+.av-error{font-size:15px;color:#ff5fa0;min-height:18px;margin-top:10px;text-align:center}
+.av-modal-footer{font-size:12px;color:#a8bfd8;text-align:center;margin-top:16px}
+.av-modal-footer a{color:var(--gold);text-decoration:none}
+.av-modal-footer a:hover{text-decoration:underline}
+
+/* ── KARMA TOAST ── */
+.karma-toast{position:fixed;bottom:28px;right:28px;z-index:998;background:#0a1535;border:1px solid rgba(245,197,24,.3);border-radius:16px;padding:16px 22px;display:flex;align-items:center;gap:14px;box-shadow:0 8px 40px rgba(245,197,24,.15);opacity:0;transform:translateY(20px);transition:opacity .4s,transform .4s;pointer-events:none}
+.karma-toast.show{opacity:1;transform:translateY(0)}
+.kt-icon{font-size:24px}
+.kt-label{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:.18em;color:var(--gold);display:block}
+.kt-amount{font-family:'Orbitron',sans-serif;font-size:22px;font-weight:900;color:var(--teal);display:block}
+.kt-msg{font-family:'Share Tech Mono',monospace;font-size:10px;color:#a8bfd8;display:block}
+
+/* ── FOOTER ── */
+footer{position:relative;z-index:1;padding:56px 24px 40px;border-top:1px solid rgba(245,197,24,.08)}
+.footer-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px}
+@media(max-width:760px){.footer-inner{grid-template-columns:1fr 1fr}}
+@media(max-width:480px){.footer-inner{grid-template-columns:1fr}}
+.footer-brand{font-family:'Orbitron',sans-serif;font-size:15px;font-weight:700;letter-spacing:.12em;color:#fff;margin-bottom:12px}
+.footer-brand span{color:var(--gold)}
+.footer-about{font-size:14px;color:#a8bfd8;line-height:1.7;max-width:280px}
+.footer-col-title{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:.22em;color:var(--gold);margin-bottom:14px}
+.footer-links{list-style:none;display:flex;flex-direction:column;gap:9px}
+.footer-links a{font-size:14px;color:#a8bfd8;text-decoration:none;transition:color .2s}
+.footer-links a:hover{color:var(--gold)}
+.footer-bottom{max-width:1100px;margin:40px auto 0;padding-top:24px;border-top:1px solid rgba(255,255,255,.05);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.footer-copy{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:.12em;color:#4a5a78}
+.footer-web4{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:.14em;color:rgba(245,197,24,.5)}
+
+@media(max-width:520px){.section{padding:64px 16px}.section-inner{padding:0 .75rem}.hero{padding:100px 16px 60px}.karma-chips{gap:12px}.leaderboard .lb-bar-wrap{display:none}}
+</style>
+</head>
+<body>
+
+<canvas id="stars"></canvas>
+
+<!-- NAV -->
+<nav id="nav">
+  <a class="nav-brand" href="#">✦ GRACE<span>BOOK</span></a>
+  <button class="nav-toggle" id="nav-toggle" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+  <ul class="nav-links" id="nav-links">
+    <li><a href="#how">How It Works</a></li>
+    <li><a href="#feed">Live Feed</a></li>
+    <li><a href="#leaderboard">Leaderboard</a></li>
+    <li><a href="#features">Features</a></li>
+    <li><a href="#karma">Karma</a></li>
+    <li><a href="#ecosystem">Ecosystem</a></li>
+    <li class="nav-links-mobile-only"><a href="#how">How It Works</a></li>
+  </ul>
+  <div class="nav-right"><a class="nav-cta" href="#how">✦ How It Works</a></div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <canvas id="hero-canvas"></canvas>
+  <div class="hero-inner">
+    <div class="hero-kicker">THE CONSCIOUS SOCIAL NETWORK — POWERED BY OASIS WEB4 KARMA</div>
+    <h1 class="hero-title">Social media that<br><span>rewards kindness</span></h1>
+    <p class="hero-sub">GraceBook is a social network where every good deed, supportive comment, helpful post and act of generosity earns you karma — permanently recorded on the OASIS blockchain. Be good. Be seen. Be rewarded.</p>
+    <div class="hero-btns">
+      <a class="btn-primary" href="#how">HOW IT WORKS</a>
+      <a class="btn-outline" href="#feed">SEE THE FEED</a>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="num">2.4M</div><div class="lbl">Good Deeds Logged</div></div>
+      <div class="hero-stat"><div class="num">186K</div><div class="lbl">Active Members</div></div>
+      <div class="hero-stat"><div class="num">94</div><div class="lbl">Countries</div></div>
+      <div class="hero-stat"><div class="num">∞</div><div class="lbl">Kindness Possible</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section" id="how">
+  <div class="section-inner">
+    <div class="section-kicker">THE GRACEBOOK MECHANIC</div>
+    <h2 class="section-title">Karma That Means Something</h2>
+    <span class="section-line"></span>
+    <p class="section-sub">Unlike any other platform — your behaviour here has real, lasting consequences. Good actions earn karma on the OASIS blockchain. Bad actors lose it. Simple.</p>
+
+    <div class="how-grid">
+      <div class="how-card earn">
+        <span class="how-icon">✦</span>
+        <div class="how-title">EARN KARMA</div>
+        <p class="how-desc">Every positive action is verified and rewarded. Karma is stored permanently on the OASIS blockchain — it follows your avatar across every world in the Omniverse.</p>
+        <ul class="how-items">
+          <li>Share a supportive, helpful post</li>
+          <li>Leave a kind or uplifting comment</li>
+          <li>Donate to a good cause</li>
+          <li>Share useful tips or advice</li>
+          <li>Complete a Justice League Academy class</li>
+          <li>Join a GHN Love Beam</li>
+          <li>Rescue or adopt an animal via Noah's Ark</li>
+          <li>Help someone in a verified post</li>
+          <li>Mentor another member</li>
+        </ul>
+        <span class="karma-tag earn">▲ UP TO +500 KARMA PER ACTION</span>
+      </div>
+
+      <div class="how-card">
+        <span class="how-icon">⧡</span>
+        <div class="how-title" style="color:var(--gold)">KARMA LEVELS</div>
+        <p class="how-desc">Your karma score unlocks status tiers, granting access to exclusive features, community roles, and eventually jobs within the OASIS ecosystem.</p>
+        <ul class="how-items" style="color:#a8bfd8">
+          <li style="color:#a8bfd8">🌱 <span style="color:var(--teal)">Seedling</span> — 0–999 karma</li>
+          <li style="color:#a8bfd8">🌿 <span style="color:var(--teal)">Grower</span> — 1,000–4,999</li>
+          <li style="color:#a8bfd8">🌟 <span style="color:var(--gold)">Lightworker</span> — 5,000–19,999</li>
+          <li style="color:#a8bfd8">💛 <span style="color:var(--gold)">Grace Guide</span> — 20,000–49,999</li>
+          <li style="color:#a8bfd8">✦ <span style="color:#fff">Luminary</span> — 50,000–99,999</li>
+          <li style="color:#a8bfd8">♾ <span style="color:#ffd740)">Ascendant</span> — 100,000+</li>
+        </ul>
+        <span class="karma-tag earn">UNLOCK JOBS AT OASIS</span>
+      </div>
+
+      <div class="how-card lose">
+        <span class="how-icon">⚠</span>
+        <div class="how-title">LOSE KARMA</div>
+        <p class="how-desc">Toxicity, abuse and bad behaviour have real consequences. Repeat offenders lose karma, lose status, and lose access — making GraceBook self-healing.</p>
+        <ul class="how-items">
+          <li>Abusive or threatening comments</li>
+          <li>Spreading misinformation</li>
+          <li>Harassment of any member</li>
+          <li>Spamming or manipulative posts</li>
+          <li>Verified bad-faith reports</li>
+        </ul>
+        <span class="karma-tag lose">▼ KARMA PENALTIES APPLY</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LIVE FEED -->
+<section class="section" id="feed" style="padding-top:0">
+  <div class="section-inner">
+    <div class="section-kicker">GRACEBOOK FEED</div>
+    <h2 class="section-title">The World Doing Good</h2>
+    <span class="section-line"></span>
+    <p class="section-sub">A live stream of positive acts, helpful posts, and verified good deeds from members across the planet.</p>
+
+    <div class="feed-grid">
+      <div class="feed-post featured">
+        <div class="post-header">
+          <div class="post-avatar gold">🌟</div>
+          <div class="post-meta">
+            <div class="post-name">ELENA VASQUEZ</div>
+            <div class="post-time">LUMINARY · 3 MINS AGO</div>
+          </div>
+          <div class="post-karma-badge">+150 KARMA</div>
+        </div>
+        <p class="post-body">Just spent the morning at our local food bank — we packed 340 meal boxes for families in need. If you're in Bristol and want to volunteer, drop me a message. Every pair of hands helps. 💛</p>
+        <span class="post-tag">GOOD DEED VERIFIED</span>
+        <div class="post-reactions">
+          <span class="reaction">💛 218</span>
+          <span class="reaction">✦ 94</span>
+          <span class="reaction">💬 37</span>
+        </div>
+      </div>
+
+      <div class="feed-post">
+        <div class="post-header">
+          <div class="post-avatar teal">🌿</div>
+          <div class="post-meta">
+            <div class="post-name">MARCUS OSEI</div>
+            <div class="post-time">LIGHTWORKER · 11 MINS AGO</div>
+          </div>
+          <div class="post-karma-badge">+75 KARMA</div>
+        </div>
+        <p class="post-body">Thread: Free mental health resources if you're struggling right now 🧵 — I've compiled 14 free services across 8 countries, all verified. Mental health is wealth. Please share.</p>
+        <span class="post-tag">HELPFUL RESOURCE</span>
+        <div class="post-reactions">
+          <span class="reaction">💛 512</span>
+          <span class="reaction">✦ 203</span>
+          <span class="reaction">💬 89</span>
+        </div>
+      </div>
+
+      <div class="feed-post">
+        <div class="post-header">
+          <div class="post-avatar violet">💜</div>
+          <div class="post-meta">
+            <div class="post-name">SARAH CHEN</div>
+            <div class="post-time">GRACE GUIDE · 28 MINS AGO</div>
+          </div>
+          <div class="post-karma-badge">+250 KARMA</div>
+        </div>
+        <p class="post-body">Just donated £500 to the GHN flood relief Love Beam for Pakistan. Healers worldwide are sending distance healing to the affected communities right now. Join us at ghn.oasisomniverse.one 💜</p>
+        <span class="post-tag">DONATION + LOVE BEAM</span>
+        <div class="post-reactions">
+          <span class="reaction">💛 341</span>
+          <span class="reaction">✦ 156</span>
+          <span class="reaction">💬 48</span>
+        </div>
+      </div>
+
+      <div class="feed-post">
+        <div class="post-header">
+          <div class="post-avatar green">🐾</div>
+          <div class="post-meta">
+            <div class="post-name">TOMMY WALSH</div>
+            <div class="post-time">GROWER · 45 MINS AGO</div>
+          </div>
+          <div class="post-karma-badge">+500 KARMA</div>
+        </div>
+        <p class="post-body">TODAY I adopted Luna from our local Noah's Ark ARN centre 🐕 She was there for 8 months — now she has a forever home. The OASIS karma system logged it instantly. Best 500 karma I ever earned.</p>
+        <span class="post-tag">NOAH'S ARK ADOPTION</span>
+        <div class="post-reactions">
+          <span class="reaction">💛 892</span>
+          <span class="reaction">✦ 411</span>
+          <span class="reaction">💬 127</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LEADERBOARD -->
+<section class="section" id="leaderboard">
+  <div class="section-inner">
+    <div class="section-kicker">GLOBAL KARMA LEADERBOARD</div>
+    <h2 class="section-title">The Grace Leaders</h2>
+    <span class="section-line"></span>
+    <p class="section-sub">The most generous, helpful and kind souls on the planet — ranked by verified OASIS karma across every ecosystem platform.</p>
+
+    <div class="leaderboard">
+      <div class="lb-row top">
+        <div class="lb-rank">01</div>
+        <div class="lb-avatar">✦</div>
+        <div class="lb-info">
+          <div class="lb-name">AISHA RAHMAN</div>
+          <div class="lb-title">Ascendant · Healer · Noah's Ark Volunteer</div>
+        </div>
+        <div class="lb-karma">142,850</div>
+        <div class="lb-bar-wrap"><div class="lb-bar" style="width:100%"></div></div>
+      </div>
+      <div class="lb-row top">
+        <div class="lb-rank">02</div>
+        <div class="lb-avatar">💛</div>
+        <div class="lb-info">
+          <div class="lb-name">JAMES OKOLIE</div>
+          <div class="lb-title">Luminary · JLA Instructor · GraceBook Mentor</div>
+        </div>
+        <div class="lb-karma">118,220</div>
+        <div class="lb-bar-wrap"><div class="lb-bar" style="width:83%"></div></div>
+      </div>
+      <div class="lb-row">
+        <div class="lb-rank">03</div>
+        <div class="lb-avatar">🌟</div>
+        <div class="lb-info">
+          <div class="lb-name">PRIYA NAIR</div>
+          <div class="lb-title">Luminary · GHN Healer · Animal Rescue</div>
+        </div>
+        <div class="lb-karma">97,640</div>
+        <div class="lb-bar-wrap"><div class="lb-bar" style="width:69%"></div></div>
+      </div>
+      <div class="lb-row">
+        <div class="lb-rank">04</div>
+        <div class="lb-avatar">🌿</div>
+        <div class="lb-info">
+          <div class="lb-name">CARLOS MENDEZ</div>
+          <div class="lb-title">Grace Guide · JLA Student · Conscious Coder</div>
+        </div>
+        <div class="lb-karma">61,480</div>
+        <div class="lb-bar-wrap"><div class="lb-bar" style="width:43%"></div></div>
+      </div>
+      <div class="lb-row">
+        <div class="lb-rank">05</div>
+        <div class="lb-avatar">🌱</div>
+        <div class="lb-info">
+          <div class="lb-name">YUI TANAKA</div>
+          <div class="lb-title">Lightworker · Meditation Teacher</div>
+        </div>
+        <div class="lb-karma">54,200</div>
+        <div class="lb-bar-wrap"><div class="lb-bar" style="width:38%"></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="section" id="features">
+  <div class="section-inner">
+    <div class="section-kicker">PLATFORM FEATURES</div>
+    <h2 class="section-title">Built for Good</h2>
+    <span class="section-line"></span>
+    <p class="section-sub">Everything you'd expect from a social network — rebuilt from the ground up with consciousness and karma at its core.</p>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-num">01</div>
+        <span class="feature-icon">✦</span>
+        <div class="feature-title">Conscious Feed</div>
+        <p class="feature-desc">Your feed is curated by kindness, not engagement bait. Verified good deeds, helpful posts and uplifting stories rise to the top — algorithmically and through community karma voting.</p>
+        <div class="feature-tags"><span class="ftag">KARMA RANKED</span><span class="ftag">VERIFIED DEEDS</span><span class="ftag">NO ADS</span></div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-num">02</div>
+        <span class="feature-icon">⧡</span>
+        <div class="feature-title">OASIS Avatar Profile</div>
+        <p class="feature-desc">Your GraceBook profile IS your OASIS avatar. One karma score that spans GraceBook, GHN, Noah's Ark ARN, Justice League Academy and every world in the OASIS Omniverse.</p>
+        <div class="feature-tags"><span class="ftag">SINGLE AVATAR</span><span class="ftag">BLOCKCHAIN KARMA</span><span class="ftag">ALL PLATFORMS</span></div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-num">03</div>
+        <span class="feature-icon">🏆</span>
+        <div class="feature-title">Karma Leaderboards</div>
+        <p class="feature-desc">Global, regional and category leaderboards updated in real time. Compete in Good Deeds, Donations, Healing Acts, Teaching and more — earn recognition across the whole ecosystem.</p>
+        <div class="feature-tags"><span class="ftag">GLOBAL</span><span class="ftag">REGIONAL</span><span class="ftag">REAL TIME</span></div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-num">04</div>
+        <span class="feature-icon">🛡</span>
+        <div class="feature-title">Self-Healing Community</div>
+        <p class="feature-desc">No moderators needed. Bad actors lose karma. Enough losses and access is restricted automatically. The community governs itself — every report is a vote for a kinder world.</p>
+        <div class="feature-tags"><span class="ftag">AUTO-GOVERNANCE</span><span class="ftag">KARMA PENALTIES</span><span class="ftag">TRANSPARENT</span></div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-num">05</div>
+        <span class="feature-icon">💼</span>
+        <div class="feature-title">Earn Your Place at OASIS</div>
+        <p class="feature-desc">Top karma earners across GraceBook, JLA and the wider ecosystem can be offered real roles helping build OASIS. We find talent by watching what you do — not your CV.</p>
+        <div class="feature-tags"><span class="ftag">JOBS</span><span class="ftag">MERIT-BASED</span><span class="ftag">OPEN TO ALL</span></div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-num">06</div>
+        <span class="feature-icon">🌍</span>
+        <div class="feature-title">Good Cause Integration</div>
+        <p class="feature-desc">Donate to verified causes directly through GraceBook. Your donation is logged on the blockchain, verified by OASIS, and converted directly into karma — transparently, permanently.</p>
+        <div class="feature-tags"><span class="ftag">VERIFIED CAUSES</span><span class="ftag">ON-CHAIN</span><span class="ftag">INSTANT KARMA</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- KARMA BAND -->
+<section class="section" id="karma">
+  <div class="section-inner">
+    <div class="karma-band">
+      <div class="section-kicker">KARMA ACTIONS</div>
+      <h2 class="section-title" style="margin-bottom:8px">Every Good Act Counts</h2>
+      <span class="section-line"></span>
+      <p class="section-sub" style="margin-bottom:0">Karma values are indicative. Verified or cross-platform actions earn bonus multipliers.</p>
+      <div class="karma-chips">
+        <div class="karma-chip kc-earn"><span class="kc-num">+50</span><span class="kc-act">HELPFUL POST</span></div>
+        <div class="karma-chip kc-earn"><span class="kc-num">+75</span><span class="kc-act">SUPPORTIVE COMMENT</span></div>
+        <div class="karma-chip kc-earn"><span class="kc-num">+150</span><span class="kc-act">VERIFIED GOOD DEED</span></div>
+        <div class="karma-chip kc-earn"><span class="kc-num">+200</span><span class="kc-act">DONATION TO CAUSE</span></div>
+        <div class="karma-chip kc-earn"><span class="kc-num">+300</span><span class="kc-act">MENTOR A MEMBER</span></div>
+        <div class="karma-chip kc-earn"><span class="kc-num">+500</span><span class="kc-act">ECOSYSTEM ACTION</span></div>
+        <div class="karma-chip kc-lose"><span class="kc-num">−100</span><span class="kc-act">TOXIC COMMENT</span></div>
+        <div class="karma-chip kc-lose"><span class="kc-num">−250</span><span class="kc-act">HARASSMENT</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ECOSYSTEM -->
+<div class="eco-band" id="ecosystem">
+  <div class="eco-inner">
+    <div class="eco-text">
+      <h2>One Avatar.<br>Every World.</h2>
+      <p>Your GraceBook karma is the same karma that heals on GHN, rescues animals on Noah's Ark ARN, trains heroes on Justice League Academy, and builds Our World. It's one score — earned by living well.</p>
+      <div class="eco-links">
+        <a class="eco-link" href="#">
+          <span class="eco-link-icon">💜</span>
+          <div class="eco-link-info"><div class="name">GLOBAL HEALING NETWORK</div><div class="desc">Send healing to people, animals and places worldwide</div></div>
+        </a>
+        <a class="eco-link" href="#">
+          <span class="eco-link-icon">🐾</span>
+          <div class="eco-link-info"><div class="name">NOAH'S ARK ARN</div><div class="desc">Rescue and adopt animals — earn karma for every life saved</div></div>
+        </a>
+        <a class="eco-link" href="#">
+          <span class="eco-link-icon">⚡</span>
+          <div class="eco-link-info"><div class="name">JUSTICE LEAGUE ACADEMY</div><div class="desc">Learn mindfulness, coding, survival and more — coming soon</div></div>
+        </a>
+        <a class="eco-link" href="#">
+          <span class="eco-link-icon">🌍</span>
+          <div class="eco-link-info"><div class="name">OUR WORLD</div><div class="desc">The immersive OASIS metaverse — your karma opens every door</div></div>
+        </a>
+      </div>
+    </div>
+    <div class="eco-visual">
+      <div class="eco-stat-row">
+        <div class="eco-stat"><span class="n">5</span><span class="l">PLATFORMS CONNECTED</span></div>
+        <div class="eco-stat"><span class="n">1</span><span class="l">KARMA SCORE</span></div>
+      </div>
+      <div class="eco-stat-row">
+        <div class="eco-stat"><span class="n">∞</span><span class="l">WAYS TO EARN</span></div>
+        <div class="eco-stat"><span class="n">0</span><span class="l">ADS. EVER.</span></div>
+      </div>
+      <div style="background:var(--bg-card);border-radius:14px;padding:22px;border:1px solid rgba(245,197,24,.15);text-align:center">
+        <div style="font-family:'Orbitron',sans-serif;font-size:11px;letter-spacing:.12em;color:var(--gold);margin-bottom:10px">POWERED BY</div>
+        <div style="font-family:'Orbitron',sans-serif;font-size:16px;font-weight:900;color:#fff">OASIS WEB4 API</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:#a8bfd8;margin-top:6px">Karma recorded on-chain · One avatar · Every world</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div>
+      <div class="footer-brand">✦ GRACE<span>BOOK</span></div>
+      <p class="footer-about">The conscious social network where kindness earns karma — permanently recorded on the OASIS blockchain. Part of the OASIS Omniverse.</p>
+    </div>
+    <div>
+      <div class="footer-col-title">PLATFORM</div>
+      <ul class="footer-links">
+        <li><a href="#feed">Live Feed</a></li>
+        <li><a href="#leaderboard">Leaderboard</a></li>
+        <li><a href="#features">Features</a></li>
+        <li><a href="#karma">Karma</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-col-title">ECOSYSTEM</div>
+      <ul class="footer-links">
+        <li><a href="#">Global Healing Network</a></li>
+        <li><a href="#">Noah's Ark ARN</a></li>
+        <li><a href="#">Justice League Academy</a></li>
+        <li><a href="#">Our World</a></li>
+        <li><a href="#">OPORTAL</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-col-title">OASIS</div>
+      <ul class="footer-links">
+        <li><a href="#">oasisomniverse.one</a></li>
+        <li><a href="#">Web4 API</a></li>
+        <li><a href="#">Karma System</a></li>
+        <li><a href="#">Create Avatar</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span class="footer-copy">© 2026 GRACEBOOK · OASIS OMNIVERSE · ALL RIGHTS RESERVED</span>
+    <span class="footer-web4">POWERED BY OASIS WEB 4</span>
+  </div>
+</footer>
+
+<!-- CONNECT AVATAR MODAL -->
+<div class="av-modal-overlay" id="av-modal">
+  <div class="av-modal-box">
+    <button class="av-modal-close" id="av-modal-close">✕</button>
+    <div class="av-modal-kicker">OASIS WEB4 API</div>
+    <div class="av-modal-title">Connect Your Avatar</div>
+    <p class="av-modal-sub">Sign in with your OASIS avatar to earn karma for every good deed, post and act of kindness — recorded permanently on the blockchain.</p>
+    <input class="av-field" id="bi-email" type="email" placeholder="Email address" autocomplete="username">
+    <input class="av-field" id="bi-password" type="password" placeholder="Password" autocomplete="current-password">
+    <button class="av-submit-btn" id="av-login-btn">CONNECT AVATAR →</button>
+    <div class="av-error" id="av-error"></div>
+    <p class="av-modal-footer">No avatar? <a href="https://oportal.oasisomniverse.one" target="_blank" rel="noopener">Create one free at OPORTAL →</a></p>
+  </div>
+</div>
+
+<!-- KARMA TOAST -->
+<div class="karma-toast" id="karma-toast">
+  <span class="kt-icon">✦</span>
+  <div>
+    <span class="kt-label" id="kt-label">KARMA EARNED</span>
+    <span class="kt-amount" id="kt-amount">+150</span>
+    <span class="kt-msg" id="kt-msg"></span>
+  </div>
+</div>
+
+<script>
+// ── Stars ──
+(function(){
+  const c=document.getElementById('stars'),ctx=c.getContext('2d');
+  function resize(){c.width=innerWidth;c.height=innerHeight}
+  resize(); window.addEventListener('resize',resize);
+  const stars=Array.from({length:200},()=>({x:Math.random()*innerWidth,y:Math.random()*innerHeight,r:Math.random()*1.2+.2,a:Math.random()}));
+  function draw(){
+    ctx.clearRect(0,0,c.width,c.height);
+    stars.forEach(s=>{
+      s.a+=.003*(Math.random()>.5?1:-1);
+      s.a=Math.max(.1,Math.min(1,s.a));
+      ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(245,197,24,${s.a*.4})`;ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ── Hero canvas ──
+(function(){
+  const c=document.getElementById('hero-canvas'),ctx=c.getContext('2d');
+  function resize(){c.width=c.parentElement.clientWidth||innerWidth;c.height=c.parentElement.clientHeight||innerHeight}
+  resize(); window.addEventListener('resize',resize);
+
+  const nodes=[];
+  const labels=['KINDNESS','HEALING','LEARNING','GIVING','GROWING','TOGETHER','GRACEBOOK','OUR WORLD','GHN','NOAH\'S ARK'];
+  for(let i=0;i<12;i++){
+    nodes.push({
+      x:Math.random()*c.width,y:Math.random()*c.height,
+      vx:(Math.random()-.5)*.4,vy:(Math.random()-.5)*.4,
+      r:Math.random()*18+8,
+      label:labels[i]||'',
+      gold:Math.random()>.6,
+      pulse:Math.random()*Math.PI*2
+    });
+  }
+
+  let t=0;
+  function draw(){
+    ctx.clearRect(0,0,c.width,c.height);
+    t+=.012;
+
+    // connections
+    for(let i=0;i<nodes.length;i++){
+      for(let j=i+1;j<nodes.length;j++){
+        const dx=nodes[j].x-nodes[i].x,dy=nodes[j].y-nodes[i].y;
+        const d=Math.sqrt(dx*dx+dy*dy);
+        if(d<200){
+          const a=(1-d/200)*.18;
+          ctx.beginPath();ctx.moveTo(nodes[i].x,nodes[i].y);ctx.lineTo(nodes[j].x,nodes[j].y);
+          ctx.strokeStyle=`rgba(245,197,24,${a})`;ctx.lineWidth=1;ctx.stroke();
+        }
+      }
+    }
+
+    // nodes
+    nodes.forEach((n,i)=>{
+      n.x+=n.vx; n.y+=n.vy; n.pulse+=.04;
+      if(n.x<0||n.x>c.width)n.vx*=-1;
+      if(n.y<0||n.y>c.height)n.vy*=-1;
+      const glow=Math.sin(n.pulse)*.3+.7;
+      const col=n.gold?`rgba(245,197,24,${glow*.7})`:`rgba(0,212,170,${glow*.5})`;
+      ctx.beginPath();ctx.arc(n.x,n.y,n.r,0,Math.PI*2);
+      ctx.fillStyle=n.gold?`rgba(245,197,24,.12)`:`rgba(0,212,170,.08)`;ctx.fill();
+      ctx.strokeStyle=col;ctx.lineWidth=1.5;ctx.stroke();
+      if(n.label){
+        ctx.font=`700 9px 'Share Tech Mono'`;ctx.fillStyle=`rgba(245,197,24,${glow*.6})`;
+        ctx.textAlign='center';ctx.fillText(n.label,n.x,n.y+n.r+14);
+      }
+    });
+
+    // karma pulses
+    if(Math.random()>.97){
+      const a=nodes[Math.floor(Math.random()*nodes.length)];
+      const b=nodes[Math.floor(Math.random()*nodes.length)];
+      if(a!==b) pulses.push({x:a.x,y:a.y,tx:b.x,ty:b.y,p:0});
+    }
+    pulses.forEach((p,i)=>{
+      p.p+=.025;
+      const x=p.x+(p.tx-p.x)*p.p, y=p.y+(p.ty-p.y)*p.p;
+      ctx.beginPath();ctx.arc(x,y,3,0,Math.PI*2);
+      ctx.fillStyle=`rgba(245,197,24,${1-p.p})`;ctx.fill();
+    });
+    for(let i=pulses.length-1;i>=0;i--){ if(pulses[i].p>=1) pulses.splice(i,1); }
+
+    requestAnimationFrame(draw);
+  }
+  const pulses=[];
+  draw();
+})();
+
+// ── Nav toggle ──
+document.getElementById('nav-toggle').addEventListener('click',function(){
+  this.classList.toggle('open');
+  document.getElementById('nav-links').classList.toggle('open');
+});
+</script>
+
+<script type="module">
+import { OASISClient } from 'https://esm.sh/@oasisomniverse/web4-api@2.0.2';
+
+const oasis = new OASISClient({ baseUrl:'https://api.web4.oasisomniverse.one', persistSession:true });
+let session = null;
+
+const modal     = document.getElementById('av-modal');
+const modalClose= document.getElementById('av-modal-close');
+const loginBtn  = document.getElementById('av-login-btn');
+const errorEl   = document.getElementById('av-error');
+const toast     = document.getElementById('karma-toast');
+const connectBtn= document.getElementById('av-connect-btn');
+const badge     = document.getElementById('av-badge');
+
+// ── Modal ──
+function openModal(){ modal.classList.add('open'); document.getElementById('bi-email').focus(); }
+function closeModal(){ modal.classList.remove('open'); errorEl.textContent=''; }
+modalClose.addEventListener('click', closeModal);
+modal.addEventListener('click', e=>{ if(e.target===modal) closeModal(); });
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); });
+
+// ── Connect button ──
+if(connectBtn) connectBtn.addEventListener('click', openModal);
+
+// ── Login ──
+loginBtn.addEventListener('click', async()=>{
+  const email=document.getElementById('bi-email').value.trim();
+  const password=document.getElementById('bi-password').value;
+  if(!email||!password){ errorEl.textContent='Please enter your email and password.'; return; }
+  loginBtn.disabled=true; loginBtn.textContent='CONNECTING…';
+  try {
+    const res = await oasis.auth.login({ email, password });
+    session = res?.session ?? res;
+    closeModal();
+    await onConnected();
+  } catch(e) {
+    errorEl.textContent = e?.message ?? 'Could not connect. Please try again.';
+    loginBtn.disabled=false; loginBtn.textContent='CONNECT AVATAR →';
+  }
+});
+
+async function onConnected(){
+  if(connectBtn) connectBtn.style.display='none';
+  if(badge){ badge.classList.add('show'); }
+  const name = session?.avatarUsername ?? session?.username ?? session?.firstName ?? 'Avatar';
+  const nameEl = document.getElementById('av-avatar-name');
+  if(nameEl) nameEl.textContent = name;
+  await refreshKarma();
+}
+
+async function refreshKarma(){
+  if(!session?.avatarId) return;
+  try {
+    const res = await oasis.karma.getKarmaForAvatar({ avatarId: session.avatarId });
+    const k = res?.karma ?? res?.totalKarma ?? 0;
+    const pill = document.getElementById('av-karma-pill');
+    if(pill) pill.textContent = `✦ ${k.toLocaleString()}`;
+  } catch(_){}
+}
+
+function showToast(amount, msg){
+  document.getElementById('kt-amount').textContent = (amount>0?'+':'')+amount;
+  document.getElementById('kt-msg').textContent = msg;
+  toast.classList.add('show');
+  setTimeout(()=>toast.classList.remove('show'), 3500);
+}
+
+function logout(){
+  oasis.auth.logout().catch(()=>{});
+  session=null;
+  if(connectBtn) connectBtn.style.display='';
+  if(badge) badge.classList.remove('show');
+}
+const logoutBtn = document.getElementById('av-logout-btn');
+if(logoutBtn) logoutBtn.addEventListener('click', logout);
+const karmaPill = document.getElementById('av-karma-pill');
+if(karmaPill) karmaPill.addEventListener('click', refreshKarma);
+
+// ── Auto-restore session ──
+(async()=>{
+  try {
+    if(await oasis.auth.isAuthenticated()){
+      const res = await oasis.auth.getSession?.() ?? null;
+      if(res){ session=res; await onConnected(); }
+    }
+  } catch(_){}
+})();
+</script>
+
+<!-- Nav CONNECT AVATAR button injected here after nav-cta -->
+<script>
+(function(){
+  const navCta = document.querySelector('.nav-cta');
+  if(!navCta) return;
+  const btn = document.createElement('button');
+  btn.className = 'av-connect-btn';
+  btn.id = 'av-connect-btn';
+  btn.textContent = '⬡ CONNECT AVATAR';
+  navCta.after(btn);
+  const badge = document.createElement('div');
+  badge.className = 'av-connected-badge';
+  badge.id = 'av-badge';
+  badge.innerHTML = '<span class="av-avatar-name" id="av-avatar-name">—</span><span class="av-karma-pill" id="av-karma-pill" title="Your karma">✦ 0</span><button class="av-logout-btn" id="av-logout-btn" title="Disconnect">✕</button>';
+  btn.after(badge);
+  btn.addEventListener('click', function(){ document.getElementById('av-modal').classList.add('open'); document.getElementById('bi-email')?.focus(); });
+})();
+</script>
+
+</body>
+</html>
